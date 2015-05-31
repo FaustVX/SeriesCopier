@@ -1,0 +1,28 @@
+﻿<UserControl x:Class="SeriesCopier.Controls.ExistantFile"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SeriesCopier.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="300" d:DataContext="{d:DesignData ExistantFile}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="75"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="75"/>
+            <ColumnDefinition Width="75"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding OriginalFileName, Mode=OneWay, StringFormat=Le fichier {0} existe déjà.}"/>
+        
+        <Button x:Name="Btn_Ignore" Grid.Column="0" Grid.Row="1" Content="Ignorer" Click="Button_Ignore_Click"/>
+        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding FileName, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Button x:Name="Btn_Rename" Grid.Column="2" Grid.Row="1" Content="Renomer" Click="Button_Rename_Click"/>
+        <Button x:Name="Btn_Overwrite" Grid.Column="3" Grid.Row="1" Content="Remplacer" Click="Button_Owerwrite_Click"/>
+    </Grid>
+</UserControl>

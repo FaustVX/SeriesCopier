@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="SeriesCopier.Controls.StartBatch"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SeriesCopier.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="25" d:DesignWidth="300" d:DataContext="{d:DesignData StartBatch}">
+    <Grid>
+        <ProgressBar x:Name="progress" Minimum="0" Value="{Binding TotalProgress, Mode=OneWay}" Maximum="{Binding MaxFiles, Mode=OneWay}"/>
+           <TextBlock>
+               <TextBlock.Text>
+                <MultiBinding StringFormat="Begin copy {0}(+{1:P2})/{2} files to : {3}, ETA: {4:T}">
+                    <Binding Path="Progress" Mode="OneWay"/>
+                    <Binding Path="FileProgress" Mode="OneWay"/>
+                    <Binding Path="MaxFiles" Mode="OneWay"/>
+                    <Binding Path="Path" Mode="OneWay"/>
+                    <Binding Path="ETA" Mode="OneWay"/>
+                </MultiBinding>
+               </TextBlock.Text>
+           </TextBlock>
+    </Grid>
+</UserControl>

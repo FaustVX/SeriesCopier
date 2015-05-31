@@ -1,0 +1,124 @@
+﻿<Window x:Class="SeriesCopier.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SeriesCopier"
+        mc:Ignorable="d"
+        Title="Series Manager" Height="350" Width="525" d:DataContext="{d:DesignData MainWindow}" >
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo/>
+    </Window.TaskbarItemInfo>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid IsEnabled="{Binding IsStarted}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="225"/>
+            </Grid.ColumnDefinitions>
+
+            <UniformGrid Columns="1" Grid.Column="0">
+                <TextBox x:Name="RegexTemplate" Text="(.*?)[\. \-_]*s?(?:aison|eason)?\s?(\d?\d)\s?[\._x-]?\s?e?p?(?:isode\s?)?\.?(\d\d)(.*)(\..*)">
+                    <FrameworkElement.ToolTip>
+                        <TextBlock Text="Regex"/>
+                    </FrameworkElement.ToolTip>
+                </TextBox>
+                <TextBox x:Name="OutputTemplate" Text="{}{1}\{1} S{2}\{1} S{2}E{3}{4}{5}">
+                    <FrameworkElement.ToolTip>
+                        <TextBlock Text="Patern nouveau nom ({1}: Nom Série, {2}: N° Saison, {3}: N° Episode, {4}: Nom Episode, {5}: Extension Fichier)"/>
+                    </FrameworkElement.ToolTip>
+                </TextBox>
+
+                <UniformGrid Rows="1">
+                    <CheckBox x:Name="InPut" IsThreeState="True" IsChecked="True" Content="Input"/>
+                    <CheckBox x:Name="OutPut" IsThreeState="True" IsChecked="{x:Null}" Content="Output"/>
+                    <Button Content="Sélectionner" Click="Button_Select_Click"/>
+                    <Button Content="Supprimer" Click="Button_DeleteSelected_Click"/>
+                </UniformGrid>
+            </UniformGrid>
+
+            <UniformGrid Grid.Column="1" Rows="1">
+                <UniformGrid Columns="1">
+                    <!--<Button Content="Naviguer" Click="Button_NavigateInput_Click" />-->
+                    <Button Content="Ajouter" Click="Button_Addnput_Click" />
+                    <Button Content="Effacer" Click="Button_Clear_Click" />
+                </UniformGrid>
+                <Button Content="Appliquer" Click="Button_Apply_Click" />
+                <Button Content="Copier" Click="Button_Copy_Click" />
+            </UniformGrid>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" x:Name="leftColumn"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="22" x:Name="rightColumn"/>
+            </Grid.ColumnDefinitions>
+
+            <ListView Grid.IsSharedSizeScope="True" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding OutputFiles}"
+                            HorizontalContentAlignment="Stretch"
+                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                            Visibility="Visible">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <FrameworkElement.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Supprimer" Click="MenuItem_Click" />
+                                    <MenuItem Header="Ouvrir Dossier" Click="MenuItem_OpenOriginalFolder_Click" />
+                                </ContextMenu>
+                            </FrameworkElement.ContextMenu>
+
+
+                            <CheckBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" IsThreeState="True"
+                                            IsChecked="{Binding Copy, Mode=TwoWay}"
+                                            IsEnabled="{Binding IsPrepared, Mode=OneWay}"
+                                            VerticalAlignment="Center" />
+                            <Grid Grid.Column="1" Grid.Row="0" IsEnabled="{Binding Copy, Mode=OneWay}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition SharedSizeGroup="Input" />
+                                    <ColumnDefinition SharedSizeGroup="Output" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0" Text="{Binding OriginalName, Mode=OneTime}" />
+                                <TextBox Grid.Column="1" Text="{Binding NewName, Mode=TwoWay}"
+                                            IsEnabled="{Binding IsPrepared, Mode=OneWay}" />
+                            </Grid>
+                            <ProgressBar Grid.Row="1" Grid.Column="1" Minimum="0"
+                                                Maximum="100"
+                                                Value="{Binding Progress}" IsIndeterminate="{Binding WaitCopy}"
+                                                Height="5" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListView>
+
+            <Expander Grid.Column="1" Grid.ColumnSpan="2" ExpandDirection="Left" IsExpanded="True"
+              Collapsed="Expander_Collapsed" Expanded="Expander_Expanded">
+                <!--<HeaderedContentControl.Header>
+                    <ItemsControl ItemsSource="Log / Infos"/>
+                </HeaderedContentControl.Header>-->
+                <ListView ItemsSource="{Binding LogFiles}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ContentControl Content="{Binding}" Padding="2" Margin="2"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ListView>
+            </Expander>
+            <GridSplitter Canvas.ZIndex="2"  x:Name="gridSplitter" Grid.Column="1" Width="7" HorizontalAlignment="Left" VerticalAlignment="Stretch" />
+        </Grid>
+    </Grid>
+</Window>
