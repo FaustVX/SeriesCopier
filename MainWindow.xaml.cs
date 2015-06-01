@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -17,7 +16,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Shell;
 using Forms = System.Windows.Forms;
 using Helpers;
@@ -28,102 +26,6 @@ using Size = System.Drawing.Size;
 
 namespace SeriesCopier
 {
-    public class OutputFileInfo : INotifyPropertyChanged
-    {
-        private bool _isPrepared, _isCopied;
-        private double _progress;
-        private bool? _copy;
-        private bool _alertExist;
-        private bool _alertFinish;
-        private string _newName;
-        private bool _waitCopy;
-
-        public bool? Copy
-        {
-            get { return _copy; }
-            set
-            {
-                _copy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string NewName
-        {
-            get { return _newName; }
-            set
-            {
-                _newName = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string OriginalName { get; set; }
-        public string OriginalFolder { get; set; }
-
-        public double Progress
-        {
-            get { return _progress; }
-            set
-            {
-                if (Progress == value)
-                    return;
-                _progress = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool IsCopied
-        {
-            get { return _isCopied; }
-            set
-            {
-                if (value == IsCopied)
-                    return;
-                _isCopied = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool IsPrepared
-        {
-            get { return _isPrepared; }
-            set
-            {
-                if (value == IsPrepared)
-                    return;
-                _isPrepared = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool WaitCopy
-        {
-            get { return _waitCopy; }
-            set
-            {
-                if (value == WaitCopy)
-                    return;
-                _waitCopy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public OutputFileInfo()
-        {
-            PropertyChanged = delegate { };
-            Copy = IsPrepared = IsCopied = true;
-            NewName = OriginalName = "";
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        //[NotifyPropertyChangedInvocator]
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            => Application.Current?.Dispatcher?.Invoke(() =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
-    }
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -190,7 +92,7 @@ namespace SeriesCopier
             };
 
             var help = new Button() {Content = "Aide"}
-                .OnClick(btn =>
+                .OnClick(delegate
                 {
                     Log(new StackPanel()
                     {
@@ -228,14 +130,14 @@ namespace SeriesCopier
                             },
                             new TextBlock()
                             {
-                                Text = "Le 2nd champ de texte est le motif à appliquer aux fichier," +
+                                Text = "Le 2nd champ de texte est le motif à appliquer aux fichiers," +
                                        " mettre entre accolades le n° du groupe défini avec le regex"
                             }
                         }
                     });
                 });
             var options = new Button() {Content = "Options"}
-                .OnClick(btn =>
+                .OnClick(delegate
                 {
                     Grid gridFolder = null;
                     Log(new StackPanel()
@@ -247,11 +149,16 @@ namespace SeriesCopier
                             {
                                 ColumnDefinitions =
                                 {
+                                    new ColumnDefinition() {Width = GridLength.Auto},
                                     new ColumnDefinition() {Width = new GridLength(1, GridUnitType.Star)},
                                     new ColumnDefinition() {Width = GridLength.Auto}
                                 },
                                 Children =
                                 {
+                                    new TextBlock()
+                                    {
+                                        Text= "Dossier par défaut : "
+                                    },
                                     new TextBlock().Do(txt =>
                                         txt.SetBinding(TextBlock.TextProperty, new Binding()
                                         {
@@ -259,8 +166,8 @@ namespace SeriesCopier
                                             Path = new PropertyPath(nameof(Options.StartupFolder)),
                                             Mode = BindingMode.OneWay
                                         })).Do(txt =>
-                                            txt.SetValue(Grid.ColumnProperty, 0)),
-                                    new Button() {Content = "...", Width = 50}.OnClick(() =>
+                                            txt.SetValue(Grid.ColumnProperty, 1)),
+                                    new Button() {Content = "...", Width = 50}.OnClick(delegate
                                     {
                                         var folder = new Forms.FolderBrowserDialog()
                                         {
@@ -269,7 +176,7 @@ namespace SeriesCopier
                                         if (folder.ShowDialog() == Forms.DialogResult.OK)
                                             Options.Current.StartupFolder = folder.SelectedPath;
                                     }).Do(txt =>
-                                        txt.SetValue(Grid.ColumnProperty, 1))
+                                        txt.SetValue(Grid.ColumnProperty, 2))
                                 }
                             }),
                             new CheckBox()
@@ -285,9 +192,26 @@ namespace SeriesCopier
                                 Source = Options.Current,
                                 Path = new PropertyPath(nameof(Options.SkipFileOnMD5)),
                                 Mode = BindingMode.TwoWay
-                            }))
+                            })),new Grid() {
+                                ColumnDefinitions =
+                                {
+                                    new ColumnDefinition() {Width= GridLength.Auto},
+                                    new ColumnDefinition() {Width = new GridLength(1, GridUnitType.Star)}
+                                },
+                                Children =
+                                                  {
+                                    new TextBlock() {Text = "Taille des block de copie : " }.Do(txt=> txt.SetValue(Grid.ColumnProperty, 0)),
+                            new NumericUpDown() {NumValue = (int) Options.Current.CopyBlockSize}.Do(nud=>nud.OnChanged+=delegate
+                            {
+                                Options.Current.CopyBlockSize = (uint) nud.NumValue;
+                            }).Do(nud=> nud.SetValue(Grid.ColumnProperty, 1))
+                                } },
+                            new TextBlock()
+                            {
+                                Text = "(Penser à sauvegarder les paramètres)"
+                            }
                         }
-                    }, new Button() {Content = "Dossier Params"}.OnClick(() =>
+                    }, new Button() {Content = "Dossier Params"}.OnClick(delegate
                     {
                         try
                         {
@@ -301,7 +225,10 @@ namespace SeriesCopier
                             Log(ex.Message);
                         }
                     }),
-                        new Button() {Content = "Save"}.OnClick(() => Options.Current.SettingSave()));
+                        new Button() {Content = "Save"}.OnClick(delegate
+                        {
+                            Options.Current.SettingSave();
+                        }));
                 });
             App.MainWindow.Log("Application started", help, options);
 
@@ -639,54 +566,49 @@ namespace SeriesCopier
                                 Speed = "0 Bytes/s",
                                 ETA = $"{DateTime.Now:T}"
                             };
-                            Log(log, new Button() {Content = "Stop"}.Do(btn => btn.Click += delegate
+                            batch.PendingCopy.Add(log.Do(cs => cs.OnStop += delegate
                             {
                                 cancel = true;
                                 batch.FileProgress = 0;
                                 batch.MaxFiles--;
-                                btn.IsEnabled = false;
                                 totalSize -= fileInfo.Length;
                             }));
                         });
 
                         {
                             var last = Tuple.Create(0L, TimeSpan.Zero);
-                            copier.OnProgressChanged +=
-                                (double percentage, long sizeCopied, ref bool stop) =>
+                            copier.OnProgressChanged += (double percentage, long sizeCopied, ref bool stop) =>
+                            {
+                                var current = Tuple.Create(sizeCopied, _stopwatch.Elapsed - start);
+                                var speed = SpeedBytes(current.Item1, current.Item2);
+                                if ((current.Item2 - last.Item2).TotalSeconds >= 0.5)
                                 {
-                                    var current = Tuple.Create(sizeCopied, _stopwatch.Elapsed - start);
-                                    if ((current.Item2 - last.Item2).TotalSeconds >= 0.5)
-                                    {
-                                        log.Speed = Speed(current.Item1, current.Item2);
-                                        var speed = SpeedBytes(current.Item1, current.Item2);
-                                        log.ETA = ETA(copier.SourceFilePath.Length, sizeCopied,
-                                            speed);
-                                        last = current;
+                                    log.Speed = Speed(current.Item1, current.Item2);
+                                    log.ETA = ETA(copier.SourceFilePath.Length, sizeCopied,
+                                        speed);
+                                    last = current;
+                                }
+                                batch.ETA = ETA(totalSize, totalCopiedSize + sizeCopied, speed);
 
-                                        batch.ETA = ETA(totalSize, totalCopiedSize + sizeCopied, speed);
-                                    }
+                                log.Elapsed = _stopwatch.Elapsed - start;
 
-                                    log.Elapsed = _stopwatch.Elapsed - start;
-
-                                    batch.FileProgress = percentage/100;
-                                    Application.Current.Dispatcher.Invoke(() =>
-                                    {
-                                        TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-                                        TaskbarItemInfo.ProgressValue = batch.TotalProgress/batch.MaxFiles;
-                                    });
-                                    stop = cancel || cancelSource.IsCancellationRequested;
-                                    file.Progress = percentage;
-                                    if (!cancel)
-                                        log.Percentage = percentage;
-                                };
+                                batch.FileProgress = percentage/100;
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+                                    TaskbarItemInfo.ProgressValue = batch.TotalProgress/batch.MaxFiles;
+                                });
+                                stop = cancel || cancelSource.IsCancellationRequested;
+                                file.Progress = percentage;
+                                if (!cancel)
+                                    log.Percentage = percentage;
+                            };
                         }
                         if (doCopy)
                             copier.Copy(out length);
                         if (!cancel)
                             batch.Progress++;
                         totalCopiedSize += fileInfo.Length;
-                        //var elapsed = _stopwatch.Elapsed - start;
-                        //log.AddSpeed(SpeedBytes(fileInfo.Length, elapsed));
                         log.IsRunning = false;
 
                         if (!file.Copy.HasValue)
@@ -707,9 +629,8 @@ namespace SeriesCopier
                 }
             }
 
-            Task.WhenAll(new []{task}).ContinueWith(t =>
+            Task.WhenAll(task).ContinueWith(delegate
             {
-
                 while (batch.Progress != batch.MaxFiles && !cancelSource.IsCancellationRequested) ;
 
                 IsStarted = true;
@@ -738,6 +659,7 @@ namespace SeriesCopier
                     }));
                 });
             });
+            dialog.Dispose();
         }
 
         private static string ETA(long totalSize, long currentCopied, double speed)
@@ -811,9 +733,9 @@ namespace SeriesCopier
             { SelectedPath = Options.Current.StartupFolder };
             if (dialog.ShowDialog() != Forms.DialogResult.OK)
                 return;
-
-            //PathToInputFolder.Text = dialog.SelectedPath;
             ListFiles(dialog.SelectedPath, false);
+
+            dialog.Dispose();
         }
 
         private void Button_Clear_Click(object sender, RoutedEventArgs e)

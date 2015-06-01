@@ -22,5 +22,12 @@
                 </MultiBinding>
             </TextBlock.Text>
         </TextBlock>
+        <ItemsControl x:Name="itemsControl" ItemsSource="{Binding Options}" Visibility="Collapsed">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
     </Grid>
 </UserControl>

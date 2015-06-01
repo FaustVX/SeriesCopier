@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -48,6 +49,8 @@ namespace SeriesCopier.Controls
                 OnPropertyChanged(nameof(FileProgress));
             }
         }
+
+        public ObservableCollection<CopyStarted> PendingCopy { get; } = new ObservableCollection<CopyStarted>();
 
         public double TotalProgress { get; private set; }
 

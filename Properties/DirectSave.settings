@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="IsMaximized" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="Position" Type="System.Drawing.Point" Scope="User">
       <Value Profile="(Default)">0, 0</Value>

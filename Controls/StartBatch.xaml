@@ -5,19 +5,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SeriesCopier.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="25" d:DesignWidth="300" d:DataContext="{d:DesignData StartBatch}">
+             d:DesignHeight="50" d:DesignWidth="300" d:DataContext="{d:DesignData StartBatch}">
     <Grid>
-        <ProgressBar x:Name="progress" Minimum="0" Value="{Binding TotalProgress, Mode=OneWay}" Maximum="{Binding MaxFiles, Mode=OneWay}"/>
-           <TextBlock>
-               <TextBlock.Text>
-                <MultiBinding StringFormat="Begin copy {0}(+{1:P2})/{2} files to : {3}, ETA: {4:T}">
-                    <Binding Path="Progress" Mode="OneWay"/>
-                    <Binding Path="FileProgress" Mode="OneWay"/>
-                    <Binding Path="MaxFiles" Mode="OneWay"/>
-                    <Binding Path="Path" Mode="OneWay"/>
-                    <Binding Path="ETA" Mode="OneWay"/>
-                </MultiBinding>
-               </TextBlock.Text>
-           </TextBlock>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <ProgressBar Grid.Row="0" x:Name="progress" Minimum="0" Value="{Binding TotalProgress, Mode=OneWay}" Maximum="{Binding MaxFiles, Mode=OneWay}"/>
+        <TextBlock Grid.Row="0">
+            <TextBlock.Text>
+            <MultiBinding StringFormat="Begin copy {0}(+{1:P2})/{2} files to : {3}, ETA: {4:T}">
+                <Binding Path="Progress" Mode="OneWay"/>
+                <Binding Path="FileProgress" Mode="OneWay"/>
+                <Binding Path="MaxFiles" Mode="OneWay"/>
+                <Binding Path="Path" Mode="OneWay"/>
+                <Binding Path="ETA" Mode="OneWay"/>
+            </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+        <Expander Grid.Row="1" Header="Copie en cours" IsExpanded="True" HorizontalContentAlignment="Stretch">
+            <ListView ItemsSource="{Binding PendingCopy}"/>
+        </Expander>
     </Grid>
 </UserControl>

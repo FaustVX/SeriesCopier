@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using System.Windows.Input;
+using Helpers.XAML;
 
 namespace SeriesCopier.Controls
 {
@@ -16,14 +13,15 @@ namespace SeriesCopier.Controls
     /// </summary>
     public partial class CopyStarted : UserControl, INotifyPropertyChanged
     {
+        public event Action<CopyStarted> OnStop;
+
         private string _fileName;
         private string _speed;
         private string _eta;
         private bool _isRunning;
         private double _percentage;
-        //private readonly HashSet<Line> _lines = new HashSet<Line>();
         private TimeSpan _elapsed;
-        public ObservableCollection<double> Speeds { get; } = new ObservableCollection<double>();
+        public Button[] Options { get; } = new Button[1];
 
         public bool IsRunning
         {
@@ -97,57 +95,28 @@ namespace SeriesCopier.Controls
             }
         }
 
-        public void AddSpeed(double speed)
-            => Application.Current?.Dispatcher?.Invoke(()
-                =>
-            {
-                Speeds.Add(speed);
-                //ReDraw();
-            });
-
-        //private void ReDraw()
-        //{
-        //    if (Speeds.Count < 2)
-        //        return;
-
-        //    foreach (var line in _lines)
-        //        canvas.Children.Remove(line);
-        //    _lines.Clear();
-
-        //    var max = Speeds.Max();
-        //    var width = ((int?)(((canvas.Parent as FrameworkElement))?.Parent as CopyStarted)?.RenderSize.Width) ?? 0;
-        //    var height = ((int?)(((canvas.Parent as FrameworkElement))?.Parent as CopyStarted)?.RenderSize.Height) ?? 0;
-        //    var last = new Point();
-
-        //    for (int i = 0; i < Speeds.Count; i++)
-        //    {
-        //        var s = Speeds[i];
-        //        var posX = (double)i / (Speeds.Count - 1) * width;
-        //        var posY = height - (s / max * height);
-
-        //        if (last == default(Point))
-        //        {
-        //            last = new Point(posX, posY);
-        //            continue;
-        //        }
-                
-        //        var line = new Line() { X1 = last.X, Y1 = last.Y, X2 = posX, Y2 = posY, Stroke = Brushes.LightSkyBlue, StrokeThickness = 1};
-        //        line.SetValue(Canvas.ZIndexProperty, 0);
-        //        _lines.Add(line);
-
-        //        last = new Point(posX, posY);
-        //        canvas.Children.Add(line);
-        //    }
-        //    UpdateLayout();
-        //}
-
         public CopyStarted()
         {
-            Speeds.Add(0);
+            MouseEnter += delegate
+            {
+                itemsControl.Visibility = Visibility.Visible;
+            };
+            MouseLeave += delegate
+            {
+                itemsControl.Visibility = Visibility.Collapsed;
+            };
+
+            Button btn = null;
+            btn = new Button {Content = "Stop"}.OnClick(delegate
+            {
+                OnStop?.Invoke(this);
+                btn.IsEnabled = false;
+            });
+            Options[0] = btn;
+
             _isRunning = true;
             DataContext = this;
             InitializeComponent();
-            //LayoutUpdated += (o, s) => ReDraw();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -19,7 +19,7 @@ namespace SeriesCopier
 
         public void Copy(out long fileLength)
         {
-            byte[] buffer = new byte[1024 * 10]; // 10KB buffer
+            byte[] buffer = new byte[Options.Current.CopyBlockSize];
             bool cancelFlag = false;
 
             using (var source = new FileStream(SourceFilePath.FullName, FileMode.Open, FileAccess.Read))

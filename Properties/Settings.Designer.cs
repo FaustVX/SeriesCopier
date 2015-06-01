@@ -46,5 +46,17 @@ namespace SeriesCopier.Properties {
                 this["SkipFileOnMD5"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10240")]
+        public uint CopyBlockSize {
+            get {
+                return ((uint)(this["CopyBlockSize"]));
+            }
+            set {
+                this["CopyBlockSize"] = value;
+            }
+        }
     }
 }

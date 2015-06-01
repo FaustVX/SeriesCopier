@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeriesCopier", "SeriesCopier.csproj", "{FDD34EBE-CEE2-436B-9364-370DB44A4FFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers", "..\Helpers\Helpers.csproj", "{24A6B8FA-70B0-4C3D-B6E9-682024744580}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{FDD34EBE-CEE2-436B-9364-370DB44A4FFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDD34EBE-CEE2-436B-9364-370DB44A4FFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDD34EBE-CEE2-436B-9364-370DB44A4FFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24A6B8FA-70B0-4C3D-B6E9-682024744580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24A6B8FA-70B0-4C3D-B6E9-682024744580}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24A6B8FA-70B0-4C3D-B6E9-682024744580}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24A6B8FA-70B0-4C3D-B6E9-682024744580}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

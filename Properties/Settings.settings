@@ -8,5 +8,8 @@
     <Setting Name="SkipFileOnMD5" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="CopyBlockSize" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">10240</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

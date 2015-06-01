@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using SeriesCopier.Annotations;
 using Size = System.Drawing.Size;
 using Point = System.Drawing.Point;
 
@@ -15,6 +16,7 @@ namespace SeriesCopier
         private bool _isMaximized = Properties.DirectSave.Default.IsMaximized;
         private Point _position = Properties.DirectSave.Default.Position;
         private Size _size = Properties.DirectSave.Default.Size;
+        private uint _copyBlockSize = Properties.Settings.Default.CopyBlockSize;
 
         public bool SkipFileOnMD5
         {
@@ -40,6 +42,18 @@ namespace SeriesCopier
             }
         }
 
+        public uint CopyBlockSize
+        {
+            get { return _copyBlockSize; }
+            set
+            {
+                if (value == _copyBlockSize)
+                    return;
+                Properties.Settings.Default.CopyBlockSize = _copyBlockSize = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsMaximized
         {
             get { return _isMaximized; }
@@ -48,7 +62,6 @@ namespace SeriesCopier
                 if (value == _isMaximized)
                     return;
                 Properties.DirectSave.Default.IsMaximized = _isMaximized = value;
-                //Properties.DirectSave.Default.Save();
                 OnPropertyChanged();
             }
         }
@@ -87,7 +100,7 @@ namespace SeriesCopier
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //[NotifyPropertyChangedInvocator]
+        [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
