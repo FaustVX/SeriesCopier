@@ -36,21 +36,22 @@ namespace SeriesCopier
         public ObservableCollection<FrameworkElement> LogFiles { get; } = new ObservableCollection<FrameworkElement>();
 
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-        private bool _isStarted;
+        private StartBatch _currentBatch;
+        //private bool _isStarted;
 
-        public bool IsStarted
-        {
-            get { return _isStarted; }
-            set
-            {
-                _isStarted = value;
-                OnPropertyChanged();
-            }
-        }
+        //public bool IsStarted
+        //{
+        //    get { return _isStarted; }
+        //    set
+        //    {
+        //        _isStarted = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
         
         public MainWindow()
         {
-            _isStarted = true;
+            //_isStarted = true;
             DataContext = this;
             InitializeComponent();
             
@@ -408,28 +409,55 @@ namespace SeriesCopier
 
             return result;
         }
-        
+
         private void Button_Copy_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new Forms.FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = Options.Current.StartupFolder};
+            var dialog = new Forms.FolderBrowserDialog()
+                         {
+                             ShowNewFolderButton = true,
+                             SelectedPath = Options.Current.StartupFolder
+                         };
             if (dialog.ShowDialog() != Forms.DialogResult.OK)
                 return;
 
-            IsStarted = false;
+            //if (_currentBatch == null || _currentBatch.IsEnded)
+            //{
+            //    var plop = StartCopy(dialog.SelectedPath, _currentBatch);
+            //    Log(_currentBatch = plop.Item1, plop.Item2);
+            //}
+            //else
+            //{
+            //    _currentBatch.OnEnded += delegate
+            //    {
+            //        var plop = StartCopy(dialog.SelectedPath, _currentBatch);
+            //        Log(_currentBatch = plop.Item1, plop.Item2);
+            //    };
+            //}
+
+            StartCopy(dialog.SelectedPath, _currentBatch);
+        }
+
+        private Tuple<StartBatch, Button> StartCopy(string selectedPath, StartBatch currentBatch)
+        {
+            Tuple<StartBatch, Button> result = null;
+            StartBatch batch = null;
 
             var copyStarted = _stopwatch.Elapsed;
 
             var outputFiles = OutputFiles.Where(file => !file.Copy.HasValue || file.Copy.Value).Memorize();
 
-            StartBatch batch = null;
+#pragma warning disable CC0022
             var cancelSource = new CancellationTokenSource();
+#pragma warning restore CC0022
+#pragma warning disable CC0022 // Should dispose object
             var task = new Task(() =>
+#pragma warning restore CC0022 // Should dispose object
                 Application.Current.Dispatcher.Invoke(() =>
-                    Log(batch = new StartBatch()
+                    Log(batch = new StartBatch
                     {
                         MaxFiles = outputFiles.Count(),
-                        Path = new DirectoryInfo(dialog.SelectedPath).FullName
-                    }, new Button() {Content = "Tout Arreter"}.Do(btn=> btn.Click+= delegate
+                        Path = new DirectoryInfo(selectedPath).FullName
+                    }, new Button {Content = "Tout Arreter"}.Do(btn=> btn.Click+= delegate
                     {
                         cancelSource.Cancel();
                         btn.IsEnabled = false;
@@ -437,12 +465,14 @@ namespace SeriesCopier
 
             long totalSize = 0L, totalCopiedSize = 0L;
 
+            //while (!(currentBatch?.IsEnded ?? true)) ;
+
             foreach (var file in outputFiles)
             {
                 file.Progress = 0;
                 file.IsCopied = true;
 
-                var output = Path.Combine(dialog.SelectedPath, file.NewName);
+                var output = Path.Combine(selectedPath, file.NewName);
 
                 var input = new FileInfo(output);
                 input.Directory.Create();
@@ -452,6 +482,7 @@ namespace SeriesCopier
                 var exist = fileInfo.Exists;
                 file.IsPrepared = false;
                 file.WaitCopy = true;
+                file.Copy = false;
                 Action copyAction = null;
 
                 totalSize += fileInfo.Length;
@@ -496,7 +527,7 @@ namespace SeriesCopier
                                         doContinue = true;
                                         file.NewName = action.NewName;
 
-                                        output = Path.Combine(dialog.SelectedPath, file.NewName);
+                                        output = Path.Combine(selectedPath, file.NewName);
                                         input = new FileInfo(output);
                                         copyAction?.Invoke();
                                     }
@@ -633,7 +664,8 @@ namespace SeriesCopier
             {
                 while (batch.Progress != batch.MaxFiles && !cancelSource.IsCancellationRequested) ;
 
-                IsStarted = true;
+                //IsStarted = true;
+                batch.IsEnded = true;
                 var elapsed = _stopwatch.Elapsed - copyStarted;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -659,7 +691,8 @@ namespace SeriesCopier
                     }));
                 });
             });
-            dialog.Dispose();
+
+            return result;
         }
 
         private static string ETA(long totalSize, long currentCopied, double speed)
@@ -723,7 +756,8 @@ namespace SeriesCopier
 
         private void Button_Select_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var file in OutputFiles.Where(file => file.Copy == InPut.IsChecked))
+            foreach (var file in
+                OutputFiles.Where(file => file.Copy == InPut.IsChecked && (file.IsPrepared)))
                 file.Copy = OutPut.IsChecked;
         }
 

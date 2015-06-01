@@ -16,7 +16,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         
-        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Files.Count, Mode=OneWay, StringFormat='{}{0} fichiers ont été supprimés'}"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Files.Count, Mode=OneWay, StringFormat='{}{0} fichiers ont été enlevés'}"/>
         <Button Grid.Row="0" Grid.Column="1" Content="Tout Restaurer" Click="Button_RestoreAll_Click"/>
         <Expander Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Header="Fichiers">
             <ListView ItemsSource="{Binding Files}" HorizontalContentAlignment="Stretch" MaxHeight="500">

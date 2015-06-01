@@ -23,16 +23,29 @@ namespace SeriesCopier.Controls
     /// </summary>
     public partial class StartBatch : UserControl, INotifyPropertyChanged
     {
+        public event Action<StartBatch> OnEnded;
+
         private int _progress;
         private int _maxFiles;
         private string _path;
         private double _fileProgress;
         private string _eta;
+        private bool _isEnded;
 
         public StartBatch()
         {
             DataContext = this;
             InitializeComponent();
+        }
+
+        public bool IsEnded
+        {
+            get { return _isEnded; }
+            set
+            {
+                if(_isEnded = value)
+                    OnEnded?.Invoke(this);
+            }
         }
 
         public int Progress

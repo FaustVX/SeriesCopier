@@ -16,6 +16,7 @@
         </Grid.RowDefinitions>
 
         <Grid IsEnabled="{Binding IsStarted}">
+        <!--<Grid IsEnabled="{Binding IsStarted}">-->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="225"/>
@@ -37,7 +38,7 @@
                     <CheckBox x:Name="InPut" IsThreeState="True" IsChecked="True" Content="Input"/>
                     <CheckBox x:Name="OutPut" IsThreeState="True" IsChecked="{x:Null}" Content="Output"/>
                     <Button Content="Sélectionner" Click="Button_Select_Click"/>
-                    <Button Content="Supprimer" Click="Button_DeleteSelected_Click"/>
+                    <Button Content="Enlever" Click="Button_DeleteSelected_Click"/>
                 </UniformGrid>
             </UniformGrid>
 
