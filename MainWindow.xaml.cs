@@ -207,9 +207,13 @@ namespace SeriesCopier
                                 {
                                     new TextBlock() {Text = "Taille des block de copie : "}.Do(txt =>
                                         txt.SetValue(Grid.ColumnProperty, 0)),
-                                    new NumericUpDown() {NumValue = (int) Options.Current.CopyBlockSize}.Do(nud =>
-                                        nud.OnChanged +=
-                                        delegate { Options.Current.CopyBlockSize = (uint) nud.NumValue; })
+                                    new NumericUpDown() {NumValue = (int) Options.Current.CopyBlockSize}
+                                    .Do(nud=> nud.SetBinding(NumericUpDown.NumValueProperty, new Binding()
+                                    {
+                                        Source = Options.Current,
+                                        Path = new PropertyPath(nameof(Options.CopyBlockSize)),
+                                        Mode = BindingMode.TwoWay
+                                    }))
                                         .Do(nud => nud.SetValue(Grid.ColumnProperty, 1)),
                                     new TextBlock() {Text = " octets"}.Do(txt=> txt.SetValue(Grid.ColumnProperty, 2))
                                 }

@@ -20,27 +20,34 @@ namespace SeriesCopier.Controls
     /// </summary>
     public partial class NumericUpDown : UserControl
     {
-        private int _numValue = 0;
-        public event Action<int> OnChanged;
+        private int _numValue1 = 0;
 
         public NumericUpDown()
         {
             DataContext = this;
             InitializeComponent();
-            txtNum.Text = _numValue.ToString();
+            txtNum.Text = NumValue.ToString();
         }
+
+
 
         public int NumValue
         {
-            get { return _numValue; }
-            set
-            {
-                if (value < 0)
-                    return;
-                _numValue = value;
-                txtNum.Text = value.ToString();
-                OnChanged?.Invoke(NumValue);
-            }
+            get { return (int)GetValue(NumValueProperty); }
+            set { SetValue(NumValueProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for NumValue.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NumValueProperty =
+            DependencyProperty.Register(nameof(NumValue), typeof(int), typeof(NumericUpDown), new PropertyMetadata(0, NumValueChangedCallback));
+
+        private static void NumValueChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+            var nud = dependencyObject as NumericUpDown;
+            if (nud == null)
+                return;
+
+            nud.txtNum.Text = dependencyPropertyChangedEventArgs.NewValue.ToString();
         }
 
         private void cmdUp_Click(object sender, RoutedEventArgs e)
@@ -55,13 +62,17 @@ namespace SeriesCopier.Controls
 
         private void txtNum_TextChanged(object sender, TextChangedEventArgs e)
         {
+            int value;
+
             if (txtNum == null)
             {
                 return;
             }
 
-            if (!int.TryParse(txtNum.Text, out _numValue))
-                txtNum.Text = _numValue.ToString();
+            if (!int.TryParse(txtNum.Text, out value))
+                txtNum.Text = value.ToString();
+
+            NumValue = value;
         }
     }
 }
