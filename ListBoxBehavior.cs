@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace SeriesCopier
 {
-    public static class ListBoxBehavior// : DependencyObject
+    public static class ListBoxBehavior
     {
         #region ScrollOnNewItem
 

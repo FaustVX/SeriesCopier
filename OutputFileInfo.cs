@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using SeriesCopier.Annotations;
 
 namespace SeriesCopier
 {
@@ -94,7 +95,7 @@ namespace SeriesCopier
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //[NotifyPropertyChangedInvocator]
+        [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => Application.Current?.Dispatcher?.Invoke(() =>
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));

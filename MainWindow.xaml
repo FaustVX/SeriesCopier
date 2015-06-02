@@ -15,8 +15,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid IsEnabled="{Binding IsStarted}">
-        <!--<Grid IsEnabled="{Binding IsStarted}">-->
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="225"/>
@@ -44,7 +43,6 @@
 
             <UniformGrid Grid.Column="1" Rows="1">
                 <UniformGrid Columns="1">
-                    <!--<Button Content="Naviguer" Click="Button_NavigateInput_Click" />-->
                     <Button Content="Ajouter" Click="Button_Addnput_Click" />
                     <Button Content="Effacer" Click="Button_Clear_Click" />
                 </UniformGrid>
@@ -108,9 +106,6 @@
 
             <Expander Grid.Column="1" Grid.ColumnSpan="2" ExpandDirection="Left" IsExpanded="True"
               Collapsed="Expander_Collapsed" Expanded="Expander_Expanded">
-                <!--<HeaderedContentControl.Header>
-                    <ItemsControl ItemsSource="Log / Infos"/>
-                </HeaderedContentControl.Header>-->
                 <ListView ItemsSource="{Binding LogFiles}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

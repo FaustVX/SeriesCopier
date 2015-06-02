@@ -20,6 +20,7 @@ using System.Windows.Shell;
 using Forms = System.Windows.Forms;
 using Helpers;
 using Helpers.XAML;
+using SeriesCopier.Annotations;
 using SeriesCopier.Controls;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
@@ -37,18 +38,18 @@ namespace SeriesCopier
 
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
         private StartBatch _currentBatch;
-        //private bool _isStarted;
+        private bool _isStarted;
 
-        //public bool IsStarted
-        //{
-        //    get { return _isStarted; }
-        //    set
-        //    {
-        //        _isStarted = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
-        
+        public bool IsStarted
+        {
+            get { return _isStarted; }
+            set
+            {
+                _isStarted = value;
+                OnPropertyChanged();
+            }
+        }
+
         public MainWindow()
         {
             //_isStarted = true;
@@ -193,20 +194,26 @@ namespace SeriesCopier
                                 Source = Options.Current,
                                 Path = new PropertyPath(nameof(Options.SkipFileOnMD5)),
                                 Mode = BindingMode.TwoWay
-                            })),new Grid() {
+                            })),
+                            new Grid()
+                            {
                                 ColumnDefinitions =
                                 {
-                                    new ColumnDefinition() {Width= GridLength.Auto},
-                                    new ColumnDefinition() {Width = new GridLength(1, GridUnitType.Star)}
+                                    new ColumnDefinition() {Width = GridLength.Auto},
+                                    new ColumnDefinition() {Width = new GridLength(1, GridUnitType.Star)},
+                                    new ColumnDefinition() {Width = GridLength.Auto}
                                 },
                                 Children =
-                                                  {
-                                    new TextBlock() {Text = "Taille des block de copie : " }.Do(txt=> txt.SetValue(Grid.ColumnProperty, 0)),
-                            new NumericUpDown() {NumValue = (int) Options.Current.CopyBlockSize}.Do(nud=>nud.OnChanged+=delegate
-                            {
-                                Options.Current.CopyBlockSize = (uint) nud.NumValue;
-                            }).Do(nud=> nud.SetValue(Grid.ColumnProperty, 1))
-                                } },
+                                {
+                                    new TextBlock() {Text = "Taille des block de copie : "}.Do(txt =>
+                                        txt.SetValue(Grid.ColumnProperty, 0)),
+                                    new NumericUpDown() {NumValue = (int) Options.Current.CopyBlockSize}.Do(nud =>
+                                        nud.OnChanged +=
+                                        delegate { Options.Current.CopyBlockSize = (uint) nud.NumValue; })
+                                        .Do(nud => nud.SetValue(Grid.ColumnProperty, 1)),
+                                    new TextBlock() {Text = " octets"}.Do(txt=> txt.SetValue(Grid.ColumnProperty, 2))
+                                }
+                            },
                             new TextBlock()
                             {
                                 Text = "(Penser à sauvegarder les paramètres)"
@@ -420,26 +427,11 @@ namespace SeriesCopier
             if (dialog.ShowDialog() != Forms.DialogResult.OK)
                 return;
 
-            //if (_currentBatch == null || _currentBatch.IsEnded)
-            //{
-            //    var plop = StartCopy(dialog.SelectedPath, _currentBatch);
-            //    Log(_currentBatch = plop.Item1, plop.Item2);
-            //}
-            //else
-            //{
-            //    _currentBatch.OnEnded += delegate
-            //    {
-            //        var plop = StartCopy(dialog.SelectedPath, _currentBatch);
-            //        Log(_currentBatch = plop.Item1, plop.Item2);
-            //    };
-            //}
-
             StartCopy(dialog.SelectedPath, _currentBatch);
         }
 
-        private Tuple<StartBatch, Button> StartCopy(string selectedPath, StartBatch currentBatch)
+        private void StartCopy(string selectedPath, StartBatch currentBatch)
         {
-            Tuple<StartBatch, Button> result = null;
             StartBatch batch = null;
 
             var copyStarted = _stopwatch.Elapsed;
@@ -449,19 +441,25 @@ namespace SeriesCopier
 #pragma warning disable CC0022
             var cancelSource = new CancellationTokenSource();
 #pragma warning restore CC0022
+            Application.Current.Dispatcher.Invoke(() =>
+                Log(batch = new StartBatch
+                {
+                    MaxFiles = outputFiles.Count(),
+                    Path = new DirectoryInfo(selectedPath).FullName
+                }, new Button {Content = "Tout Arreter"}.Do(btn => btn.Click += delegate
+                {
+                    cancelSource.Cancel();
+                    btn.IsEnabled = false;
+                })));
+
 #pragma warning disable CC0022 // Should dispose object
-            var task = new Task(() =>
+            var task = batch.Task = new Task(() =>
+            {
+                while (IsStarted) ;
+                IsStarted = true;
+                lock (this) ;
+            });
 #pragma warning restore CC0022 // Should dispose object
-                Application.Current.Dispatcher.Invoke(() =>
-                    Log(batch = new StartBatch
-                    {
-                        MaxFiles = outputFiles.Count(),
-                        Path = new DirectoryInfo(selectedPath).FullName
-                    }, new Button {Content = "Tout Arreter"}.Do(btn=> btn.Click+= delegate
-                    {
-                        cancelSource.Cancel();
-                        btn.IsEnabled = false;
-                    }))), cancelSource.Token);
 
             long totalSize = 0L, totalCopiedSize = 0L;
 
@@ -489,7 +487,7 @@ namespace SeriesCopier
 
                 copyAction = delegate
                 {
-                    task.If(t => t.Status == TaskStatus.Created)?.Start();
+                    //task.If(t => t.Status == TaskStatus.Created)?.Start();
 
                     task = task.ContinueWith(t =>
                     {
@@ -664,7 +662,7 @@ namespace SeriesCopier
             {
                 while (batch.Progress != batch.MaxFiles && !cancelSource.IsCancellationRequested) ;
 
-                //IsStarted = true;
+                IsStarted = false;
                 batch.IsEnded = true;
                 var elapsed = _stopwatch.Elapsed - copyStarted;
                 Application.Current.Dispatcher.Invoke(() =>
@@ -691,8 +689,6 @@ namespace SeriesCopier
                     }));
                 });
             });
-
-            return result;
         }
 
         private static string ETA(long totalSize, long currentCopied, double speed)
@@ -750,7 +746,7 @@ namespace SeriesCopier
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //[NotifyPropertyChangedInvocator]
+        [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) 
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 

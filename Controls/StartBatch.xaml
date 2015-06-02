@@ -24,6 +24,7 @@
             </MultiBinding>
             </TextBlock.Text>
         </TextBlock>
+        <Button Grid.Row="0" HorizontalAlignment="Right" Content="Start" Width="50" Click="Button_Click"/>
         <Expander Grid.Row="1" Header="Copie en cours" IsExpanded="True" HorizontalContentAlignment="Stretch">
             <ListView ItemsSource="{Binding PendingCopy}"/>
         </Expander>

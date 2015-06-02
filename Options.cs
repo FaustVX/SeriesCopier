@@ -74,7 +74,6 @@ namespace SeriesCopier
                 if (value == _position)
                     return;
                 Properties.DirectSave.Default.Position = _position = value;
-                //Properties.DirectSave.Default.Save();
                 OnPropertyChanged();
             }
         }
@@ -87,7 +86,6 @@ namespace SeriesCopier
                 if (value == _size)
                     return;
                 Properties.DirectSave.Default.Size = _size = value;
-                //Properties.DirectSave.Default.Save();
                 OnPropertyChanged();
             }
         }
