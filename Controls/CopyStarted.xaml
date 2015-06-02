@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SeriesCopier.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="25" d:DesignWidth="300" d:DataContext="{d:DesignData CopyStarted}">
+             Height="20" d:DesignWidth="300" d:DataContext="{d:DesignData CopyStarted}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>

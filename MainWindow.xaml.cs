@@ -427,10 +427,10 @@ namespace SeriesCopier
             if (dialog.ShowDialog() != Forms.DialogResult.OK)
                 return;
 
-            StartCopy(dialog.SelectedPath, _currentBatch);
+            StartCopy(dialog.SelectedPath);
         }
 
-        private void StartCopy(string selectedPath, StartBatch currentBatch)
+        private void StartCopy(string selectedPath)
         {
             StartBatch batch = null;
 
@@ -442,7 +442,7 @@ namespace SeriesCopier
             var cancelSource = new CancellationTokenSource();
 #pragma warning restore CC0022
             Application.Current.Dispatcher.Invoke(() =>
-                Log(batch = new StartBatch
+                Log(batch = _currentBatch = new StartBatch
                 {
                     MaxFiles = outputFiles.Count(),
                     Path = new DirectoryInfo(selectedPath).FullName
@@ -453,7 +453,7 @@ namespace SeriesCopier
                 })));
 
 #pragma warning disable CC0022 // Should dispose object
-            var task = batch.Task = new Task(() =>
+            var task = new Task(() =>
             {
                 while (IsStarted) ;
                 IsStarted = true;
@@ -462,8 +462,6 @@ namespace SeriesCopier
 #pragma warning restore CC0022 // Should dispose object
 
             long totalSize = 0L, totalCopiedSize = 0L;
-
-            //while (!(currentBatch?.IsEnded ?? true)) ;
 
             foreach (var file in outputFiles)
             {
@@ -487,7 +485,7 @@ namespace SeriesCopier
 
                 copyAction = delegate
                 {
-                    //task.If(t => t.Status == TaskStatus.Created)?.Start();
+                    task?.If(t => t.Status == TaskStatus.Created)?.Start();
 
                     task = task.ContinueWith(t =>
                     {

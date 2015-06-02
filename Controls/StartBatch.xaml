@@ -6,10 +6,15 @@
              xmlns:local="clr-namespace:SeriesCopier.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="300" d:DataContext="{d:DesignData StartBatch}">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type ListViewItem}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <ProgressBar Grid.Row="0" x:Name="progress" Minimum="0" Value="{Binding TotalProgress, Mode=OneWay}" Maximum="{Binding MaxFiles, Mode=OneWay}"/>
@@ -24,9 +29,14 @@
             </MultiBinding>
             </TextBlock.Text>
         </TextBlock>
-        <Button Grid.Row="0" HorizontalAlignment="Right" Content="Start" Width="50" Click="Button_Click"/>
         <Expander Grid.Row="1" Header="Copie en cours" IsExpanded="True" HorizontalContentAlignment="Stretch">
-            <ListView ItemsSource="{Binding PendingCopy}"/>
+            <ListView ItemsSource="{Binding PendingCopy}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ContentPresenter Content="{Binding}" HorizontalAlignment="Stretch" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListView>
         </Expander>
     </Grid>
 </UserControl>

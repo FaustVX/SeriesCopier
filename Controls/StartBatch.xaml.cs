@@ -30,8 +30,6 @@ namespace SeriesCopier.Controls
             InitializeComponent();
         }
 
-        public Task Task { get; set; }
-
         public bool IsEnded
         {
             get { return _isEnded; }
@@ -118,8 +116,5 @@ namespace SeriesCopier.Controls
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-            => Task?.If(t => t.Status == TaskStatus.Created)?.Start();
     }
 }
