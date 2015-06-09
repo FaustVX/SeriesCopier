@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SeriesCopier.Controls
 {
@@ -20,17 +8,13 @@ namespace SeriesCopier.Controls
     /// </summary>
     public partial class NumericUpDown : UserControl
     {
-        private int _numValue1 = 0;
-
         public NumericUpDown()
         {
             DataContext = this;
             InitializeComponent();
             txtNum.Text = NumValue.ToString();
         }
-
-
-
+        
         public int NumValue
         {
             get { return (int)GetValue(NumValueProperty); }
@@ -44,30 +28,23 @@ namespace SeriesCopier.Controls
         private static void NumValueChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
             var nud = dependencyObject as NumericUpDown;
-            if (nud == null)
-                return;
 
-            nud.txtNum.Text = dependencyPropertyChangedEventArgs.NewValue.ToString();
+            if (nud != null)
+                nud.txtNum.Text = dependencyPropertyChangedEventArgs.NewValue.ToString();
         }
 
         private void cmdUp_Click(object sender, RoutedEventArgs e)
-        {
-            NumValue += 1024;
-        }
+            => NumValue += 1024;
 
         private void cmdDown_Click(object sender, RoutedEventArgs e)
-        {
-            NumValue -= 1024;
-        }
+            => NumValue -= 1024;
 
         private void txtNum_TextChanged(object sender, TextChangedEventArgs e)
         {
             int value;
 
             if (txtNum == null)
-            {
                 return;
-            }
 
             if (!int.TryParse(txtNum.Text, out value))
                 txtNum.Text = value.ToString();

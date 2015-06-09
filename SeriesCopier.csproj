@@ -68,6 +68,9 @@
     <Compile Include="Controls\FileInfos.xaml.cs">
       <DependentUpon>FileInfos.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FilenameParam.xaml.cs">
+      <DependentUpon>FilenameParam.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\MD5CheckSum.xaml.cs">
       <DependentUpon>MD5CheckSum.xaml</DependentUpon>
     </Compile>
@@ -102,6 +105,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\FileInfos.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\FilenameParam.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -432,6 +432,8 @@ namespace SeriesCopier
                 return;
 
             StartCopy(dialog.SelectedPath);
+
+            dialog.Dispose();
         }
 
         private void StartCopy(string selectedPath)
@@ -471,6 +473,7 @@ namespace SeriesCopier
             {
                 file.Progress = 0;
                 file.IsCopied = true;
+                var deleteAfterCopy = !file.Copy.HasValue;
 
                 var output = Path.Combine(selectedPath, file.NewName);
 
@@ -642,7 +645,7 @@ namespace SeriesCopier
                         totalCopiedSize += fileInfo.Length;
                         log.IsRunning = false;
 
-                        if (!file.Copy.HasValue)
+                        if (deleteAfterCopy)
                             fileInfo.Delete();
 
                         file.IsCopied = false;
@@ -688,6 +691,10 @@ namespace SeriesCopier
                             file.IsCopied = true;
                             file.Progress = 0;
                         }
+                    }), new Button() {Content = "Effacer"}.OnClick(delegate
+                    {
+                        foreach (var file in outputFiles)
+                            OutputFiles.Remove(file);
                     }));
                 });
             });

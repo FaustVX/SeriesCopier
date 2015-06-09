@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SeriesCopier.Controls"
+             xmlns:local="clr-namespace:SeriesCopier"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="300" d:DataContext="{d:DesignData StartBatch}">
     <UserControl.Resources>
@@ -30,7 +30,7 @@
             </TextBlock.Text>
         </TextBlock>
         <Expander Grid.Row="1" Header="Copie en cours" IsExpanded="True" HorizontalContentAlignment="Stretch">
-            <ListView ItemsSource="{Binding PendingCopy}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListView ItemsSource="{Binding PendingCopy}" MaxHeight="300" ScrollViewer.HorizontalScrollBarVisibility="Disabled" local:ListBoxBehavior.ScrollOnNewItem="True">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <ContentPresenter Content="{Binding}" HorizontalAlignment="Stretch" />
